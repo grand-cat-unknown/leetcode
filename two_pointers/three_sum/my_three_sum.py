@@ -15,13 +15,7 @@ class Solution(object):
         result = set()
         for idx, i in enumerate(nums):
             num_copy = copy(nums)
-            num_copy[idx] = 12345678910
-            two_sum_idxs = list(self.twoSum(num_copy, -i))
-            # print("i: ", i)
-            # print("with: ", nums)
-            # print("without: ", num_copy)
-            # print("target: ", -i)
-            # print(two_sum_idxs)
+            two_sum_idxs = list(self.twoSum(num_copy, -i, idx))
             for one in two_sum_idxs:
                 # print("answers: ", nums[one[0]], nums[one[1]], i)
                 result.add(tuple( sorted([nums[one[0]], nums[one[1]], i])))
@@ -30,7 +24,7 @@ class Solution(object):
         return result
 
 
-    def twoSum(self, nums, target):
+    def twoSum(self, nums, target, skip_idx):
         """
         :type nums: List[int]
         :type target: int
@@ -40,32 +34,16 @@ class Solution(object):
         hashmap = {}
 
         for idx, val in enumerate(nums):
+            if idx == skip_idx:
+                continue
             if val in hashmap:
-                hashmap[val]['val'].append(idx)
+                hashmap[val].append(idx)
             else:
                 hashmap[val] = {}
-                hashmap[val]['val'] = [idx]
+                hashmap[val] = [idx]
 
-        subtracted_nums = [(target - x) for x in nums]
-
-        for idx, val in enumerate(subtracted_nums):
-            if val in hashmap:
-                if 'sub_val' in hashmap[val]:
-                    hashmap[val]['sub_val'].append(idx)
-                else:
-                    hashmap[val]['sub_val'] = [idx]
-
-        result = set()
-        for key in hashmap:
-            # print(hashmap[key])
-            if len(hashmap[key]['val']) > 0 and 'sub_val' in hashmap[key] and len(hashmap[key]['sub_val']) > 0:
-                all_possible_pairs = set()
-                for i in hashmap[key]['val']:
-                    for j in hashmap[key]['sub_val']:
-                        if i != j:
-                            all_possible_pairs.add(tuple(sorted([i, j])))
-                result = result.union(all_possible_pairs)
-        return result
+            if (target - val) in hashmap and hashmap[(target - val)][0] != idx:
+                yield (idx, hashmap[target-val][0])
 
     def addToHashmap(self, array, hashmap):
         for idx, num in enumerate(array):
